@@ -38,6 +38,7 @@ empate([p(_,_),J|T]):-
 	atom(J),
 	empate(T).
 
+tres_seguidos():- retracta
 tres_seguidos():-.
 
 %função de utilidade:
