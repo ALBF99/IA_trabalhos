@@ -1,7 +1,8 @@
 %% Sarah Simon Luz
 %% Ana Ferro
 
-joga :-  
+joga:-  
+	[treslinha],
 	estado_inicial(Ei), 
 	minimax_decidir(Ei,Op),
 	write(Op),nl.

@@ -1,4 +1,8 @@
-joga :-  
+%% Sarah Simon Luz
+%% Ana Ferro
+
+joga :- 
+	[treslinha], 
 	estado_inicial(Ei), 
 	alfabeta(Ei,Op),
 	write(Op),nl.
