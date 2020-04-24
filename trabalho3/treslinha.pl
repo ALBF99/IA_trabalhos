@@ -3,14 +3,14 @@
 
 %estado_inicial(Lista, jogador)
 %Lista- Lista que contém as posições do tabuleiro 4x5
-%jogador:
+%jogador- última jogada
 %	x -> jogador x
 %	o -> jogador o (computador)
-%   b -> espaço	em branco
-estado_inicial(([(p(1,1),_), (p(1,2),_), (p(1,3),_), (p(1,4),_), (p(1,5),_),
-				(p(2,1),_), (p(2,2),_), (p(2,3),_), (p(2,4),_), (p(2,5),_),
-				(p(3,1),_), (p(3,2),_), (p(3,3),_), (p(3,4),_), (p(3,5),_),
-				(p(4,1),_), (p(4,2),_), (p(4,3),_), (p(4,4),_), (p(4,5),_)],_)).
+%   v -> espaço	vazio
+estado_inicial(([(p(1,1),v), (p(1,2),v), (p(1,3),v), (p(1,4),v), (p(1,5),v),
+				(p(2,1),v), (p(2,2),v), (p(2,3),v), (p(2,4),v), (p(2,5),v),
+				(p(3,1),v), (p(3,2),v), (p(3,3),v), (p(3,4),v), (p(3,5),v),
+				(p(4,1),v), (p(4,2),v), (p(4,3),v), (p(4,4),v), (p(4,5),v)],o)).
 
 terminal((E,_)):-
 	linhas(E); 
@@ -73,7 +73,7 @@ valor((Eact,_),1):-
 	vencedor(x), !.
 
 %oper(Eact,Coluna,Eseg)
-oper((Eact,_), Jact, Coluna , (Eseg,Jseg)):-
+oper((Eact,Jact), Coluna , (Eseg,Jseg)):-
 	member(Coluna, [1,2,3,4,5]),
 	troca_jogador(Jact,Jseg),
 	casas_vagas(Coluna, Eact, Linha),
@@ -86,7 +86,7 @@ troca_jogador(O,P):-
 	).
 
 casas_vagas(Coluna, Eact, Linha):-
-	findall(X,(member((p(Coluna,_),b),Eact), X=b),L),
+	findall(X,(member((p(Coluna,_),v),Eact), X=v),L),
 	length(L,V),
 	V>0,
 	(V = 1
@@ -106,7 +106,52 @@ insere(Coluna, Linha, Jseg, [H|T], [H|Ts]):-
 	insere(Coluna, Linha, Jseg,T,Ts).
 
 insere(Coluna, Linha, Jseg, [H|T], [Hs|T]):-
-	H = (p(Coluna,Linha),b),
+	H = (p(Coluna,Linha),v),
 	Hs = (p(Coluna,Linha),Jseg), !.
 
+coluna(X, Op):- Op = X.
 
+tabuleiro([]).
+tabuleiro([(p(X,Y),J)|T]):-
+	write(J), 
+	write(' | '),
+	X = 4 -> nl, tabuleiro(T); tabuleiro(T).
+
+ciclo('min','comp',(Eact,Jact)):-
+	tabuleiro(Eact),
+	minimax_decidir((Eact,Jact),Op),
+	oper((Eact,Jact),Op,Es),
+	ciclo('min','jog',Es).
+
+ciclo('min','jog',(Eact,Jact)):-
+	tabuleiro(Eact),nl,
+	write('Coluna:'),nl,
+	read(X),
+	coluna(X,Op),
+	oper((Eact,Jact), Op, Es),
+	ciclo('min','comp', Es).
+
+ciclo('alf','comp',(Eact,Jact)):-
+	tabuleiro(Eact),
+	alfabeta((Eact,Jact),Op),
+	oper((Eact,Jact),Op,Es),
+	ciclo('alf','jog',Es).
+
+ciclo('alf','jog',(Eact,Jact)):-
+	tabuleiro(Eact),nl,
+	write('Coluna:'),nl,
+	read(X),
+	coluna(X,Op),
+	oper((Eact,Jact), Op, Es),
+	ciclo('alf','comp', Es).
+
+ciclo(_,_,(Eact,Jact)):-
+	(linhas(Eact);colunas(Eact);diagonais(Eact)),
+	tabuleiro(Eact),
+	write('Vencedor: '),
+	write(Jact), !.
+
+ciclo(_,_,(Eact,Jact)):-
+	empate(Eact),
+	tabuleiro(Eact),
+	write('Empate'), !.

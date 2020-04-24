@@ -15,7 +15,7 @@ alfabeta(Ei,terminou) :- terminal(Ei).
 
 % Nota: assume que o jogador é o "x"
 alfabeta(Ei,Opf) :- 
-	findall(Vc-Op, (oper(Ei,x,Op,Es), alfabeta_min(Es,Vc,1,-10000,10000)), L),
+	findall(Vc-Op, (oper(Ei,Op,Es), alfabeta_min(Es,Vc,1,-10000,10000)), L),
 	escolhe_max(L,Opf).
 
 % se um estado é terminal o valor é dado pela função de utilidade
