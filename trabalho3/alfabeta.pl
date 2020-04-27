@@ -4,8 +4,7 @@
 joga :- 
 	[treslinha], 
 	estado_inicial(Ei), 
-	alfabeta(Ei,Op),
-	write(Op),nl.
+	ciclo('alf',x, Ei).
 
 % decide qual é a melhor jogada num estado do jogo
 % alfabeta(Estado, MelhorJogada)
@@ -15,7 +14,9 @@ alfabeta(Ei,terminou) :- terminal(Ei).
 
 % Nota: assume que o jogador é o "x"
 alfabeta(Ei,Opf) :- 
-	findall(Vc-Op, (oper(Ei,Op,Es), alfabeta_min(Es,Vc,1,-10000,10000)), L),
+	findall(Vc-Op, (oper(Ei,x,Op,Es), alfabeta_min(Es,Vc,1,-10000,10000)), L),
+	length(L,X),
+	contador_nos(X),
 	escolhe_max(L,Opf).
 
 % se um estado é terminal o valor é dado pela função de utilidade
@@ -90,4 +91,3 @@ minimo([A|R],Val):- minimo(R,A,Val).
 minimo([],A,A).
 minimo([A|R],X,Val):- A > X,!, minimo(R,X,Val).
 minimo([A|R],_,Val):- minimo(R,A,Val).
-

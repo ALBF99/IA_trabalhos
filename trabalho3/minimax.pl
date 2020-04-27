@@ -4,7 +4,7 @@
 joga:-  
 	[treslinha],
 	estado_inicial(Ei), 
-	ciclo('min','jog',Ei).
+	ciclo('min',x, Ei).
 
 % decide qual é a melhor jogada num estado do jogo
 % minimax_decidir(Estado, MelhorJogada)
@@ -16,7 +16,9 @@ minimax_decidir(Ei,terminou) :- terminal(Ei).
 % Opf é o operador (jogada) que tem maior valor
 % Nota: assume que o jogador é o "x"
 minimax_decidir(Ei,Opf) :- 
-	findall(Vc-Op, (oper(Ei,Op,Es), minimax_valor(Es,Vc,1)), L),
+	findall(Vc-Op, (oper(Ei,x,Op,Es), minimax_valor(Es,Vc,1)), L),
+	length(L,X),
+	contador_nos(X),
 	escolhe_max(L,Opf).
 
 % se um estado é terminal o valor é dado pela função de utilidade
@@ -29,15 +31,14 @@ minimax_valor(Ei,Val,_) :-
 % -se a profundidade é par, o maior valor dos sucessores de Ei
 % -se aprofundidade é impar o menor valor dos sucessores de Ei
 minimax_valor(Ei,Val,P) :- 
-	%P1 is P+1, jogador(P1,J),
-	P1 is P+1,
-	findall(Val1, (oper(Ei,_,Es), minimax_valor(Es,Val1,P1)), V),
+	P1 is P+1, jogador(P1,J),
+	findall(Val1, (oper(Ei,J,_,Es), minimax_valor(Es,Val1,P1)), V),
 	seleciona_valor(V,P,Val).
 
 
 % jogador "x" nas jogadas impares e jogador "o" nas jogadas pares
-%jogador(P, o) :- X is P mod 2, X = 0.
-%jogador(P, x) :- X is P mod 2, X = 1.
+jogador(P, o) :- X is P mod 2, X = 0.
+jogador(P, x) :- X is P mod 2, X = 1.
 
 % Se a profundidade (P) é par, retorna em Val o maximo de V
 seleciona_valor(V,P,Val) :- 
