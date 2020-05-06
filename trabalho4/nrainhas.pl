@@ -29,8 +29,11 @@ main:-
 
 dimensao(X, N):- N = X.
 
+
 tabuleiro(Tam, L):- 
-	criar_linhas(0, Tam, L).
+	criar_linhas(0, Tam, L),
+	random_posicoes(Tam, L),
+	print_tabuleiro(Tam,L).
 
 criar_linhas(NL, Tam, []):-
 	NL = Tam, !.
@@ -50,14 +53,17 @@ estado_inicial(L).
 
 %LR-Lista de posiçoes random rainha
 %LT-Lista tabuleiro que vai sendo atualizado com as posiçoes das rainhas
+random_posicoes(N,LT):-
+	LR = [],
+	random_posicoes(N,N,LR,LT).
+
 random_posicoes(_,Rep,_,_):-
 	Rep =< 0, !.
 random_posicoes(N, Rep, LR, LT):-
 	random_between(1,N,X),
 	random_between(1,N,Y),
-		( member((X,Y),LR)
-			->fail,
-			random_posicoes(N, Rep, LR, LT)
+		( memberchk((X,Y),LR)
+			->random_posicoes(N, Rep, LR, LT)
 			; insere_rainha(X,Y,LR, LR1),
 			insere_tabuleiro(X, Y, LT, LT1),
 			Rep1 is Rep-1,
@@ -73,6 +79,15 @@ insere_tabuleiro(X,Y,[H|T], [H|Ts]):-
 	(dif(X,Linha); dif(Y,Coluna)),
 	insere_tabuleiro(X,Y,T,Ts).
 
+print_tabuleiro([]).
+print_tabuleiro(N,[(p(_,Y),J)|T]):-
+	write(J), 
+	write(' | '),
+	(Y = N
+		-> nl,
+		print_tabuleiro(T)
+		; print_tabuleiro(T)
+	).
 
 linhas().
 
@@ -85,4 +100,6 @@ op().
 %IMPORTANTE:
 %Exemplos de rotinas em Prolog que trabalham com listas: 
 %https://pt.wikibooks.org/wiki/Prolog/Exemplos
- 
+%http://wiki.di.uminho.pt/twiki/pub/Education/LC/0506/prolog93-100.pdf
+%https://slideplayer.com.br/slide/42948/
+
