@@ -1,6 +1,9 @@
 %% Sarah Simon Luz
 %% Ana Ferro
 
+%representacao dos nos
+%no(Estado,Operador,Heuristica)
+
 pesquisa_local_hill_climbingSemCiclos(E, _) :- 
 	estado_final(E),
 	write(E), write(' ').

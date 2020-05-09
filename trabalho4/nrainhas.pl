@@ -1,20 +1,6 @@
 %% Sarah Simon Luz
 %% Ana Ferro
 
-%"O problema em si
-%consistem em colocar um determinado número n maior ou igual a 2, de rainhas em um
-%tabuleiro de xadrez de forma que elas não se ataquem simultaneamente,"
-
-%Implemente em Prolog o algoritmo iterativo (baseado no “hill-climbing”)
-%para a resolução doproblema de colocar “n” rainhas num 
-%tabuleiro de “n x n” dimensões. O programa tem como parâmetro
-%o número de rainhas e tem como output as coordenadas em que cada
-%rainha foi colocada.Para um número “n” menor do que 20 deverá também
-%ter como output o tabuleiro com as rainhascolocadas.Avalie a sua solução,
-%apresentando o tempo que demora a execução do algoritmo para cada 
-%“n”entre 4 e 20.  Caso use uma posição inicial aleatória, faça, 
-%para cada “n”, a média de 10 execuçõesdo programa..
-
 
 main:-
 	[hill_climbing_SC],
@@ -22,18 +8,35 @@ main:-
 	write('Introduza o número de rainhas (entre 4 e 20):'),nl,
 	read(X),nl,
 	dimensao(X, N),
-	tabuleiro(N, L),
-	estado_inicial(L).
+	random_rainhas(N,LR),
+	tabuleiro(N,LT,LR),
+	estado_inicial(LT).
 	%pesquisa_local_hill_climbingSemCiclos(L, []).
 
 
 dimensao(X, N):- N = X.
 
+estado_inicial(L).
 
-tabuleiro(Tam, L):- 
+random_rainhas(N,LR):-
+	random_rainhas(0,N,LR).
+
+random_rainhas(Col, N, []):-
+	Col = N, !.
+random_rainhas(Col,N,[H|T]):-
+	Col1 is Col + 1,
+	random_between(1,N,Linha),
+	H = (Linha, Col1),
+	random_rainhas(Col1, N, T).
+
+
+tabuleiro(Tam, L,LR):- 
 	criar_linhas(0, Tam, L),
-	random_posicoes(Tam, L),
-	print_tabuleiro(Tam,L).
+	flatten(L,L1),
+	sort(1, @=<, LR, LROrd),
+	LF = [],
+	insere_rainhas(L1,LROrd,LF),
+	print_tabuleiro(Tam,LF).
 
 criar_linhas(NL, Tam, []):-
 	NL = Tam, !.
@@ -48,36 +51,36 @@ init_linhas(NC, L, Tam, [(p(L,NC),_)|T]) :-
 	C1 is NC + 1,
 	init_linhas(C1, L, Tam, T).
 
-estado_inicial(L).
+
+insere_rainhas([H|T], [HR|TR], LF):-
+	H = (p(L,C),_),
+	HR = (X,Y),
+	( (L==X , C ==Y)
+		-> H1 = (p(L,C),r),
+		append([H1],LF,LF1),
+		insere_rainhas(T,TR,LF1)
+		; append([H],LF,LF1),
+		insere_rainhas(T,[HR|TR],LF1)
+	).
 
 
-%LR-Lista de posiçoes random rainha
-%LT-Lista tabuleiro que vai sendo atualizado com as posiçoes das rainhas
-random_posicoes(N,LT):-
-	LR = [],
-	random_posicoes(N,N,LR,LT).
 
-random_posicoes(_,Rep,_,_):-
-	Rep =< 0, !.
-random_posicoes(N, Rep, LR, LT):-
-	random_between(1,N,X),
-	random_between(1,N,Y),
-		( memberchk((X,Y),LR)
-			->random_posicoes(N, Rep, LR, LT)
-			; insere_rainha(X,Y,LR, LR1),
-			insere_tabuleiro(X, Y, LT, LT1),
-			Rep1 is Rep-1,
-			random_posicoes(N, Rep1, LR1, LT1)
-		).
 
-%lista auxiliar
-%insere no inicio da lista, a ordem dos elementos nao importa
-insere_rainha(X,Y,LR,[(X,Y)|LR]):- !.
 
-insere_tabuleiro(X,Y,[H|T], [H|Ts]):-
-	H = (p(Linha,Coluna),_),
-	(dif(X,Linha); dif(Y,Coluna)),
-	insere_tabuleiro(X,Y,T,Ts).
+
+
+
+
+
+insere(Coluna, Linha, J, [H|T], [H|Ts]):-
+	H = (p(X,Y),_),
+	(dif(Linha,X); dif(Coluna,Y)),
+	insere(Coluna, Linha, J,T,Ts).
+
+insere(Coluna, Linha, J, [H|T], [Hs|T]):-
+	H = (p(Linha, Coluna),v),
+	Hs = (p(Linha, Coluna),J), !.
+
 
 print_tabuleiro([]).
 print_tabuleiro(N,[(p(_,Y),J)|T]):-
@@ -89,17 +92,14 @@ print_tabuleiro(N,[(p(_,Y),J)|T]):-
 		; print_tabuleiro(T)
 	).
 
-linhas().
+restricoes():-
+	linhas(),
+	diagonais().
 
-colunas().
+linhas().
 
 diagonais().
 
-op().
+op():-.
 
-%IMPORTANTE:
-%Exemplos de rotinas em Prolog que trabalham com listas: 
-%https://pt.wikibooks.org/wiki/Prolog/Exemplos
-%http://wiki.di.uminho.pt/twiki/pub/Education/LC/0506/prolog93-100.pdf
-%https://slideplayer.com.br/slide/42948/
-
+%https://sites.icmc.usp.br/sandra/G6_t2/rainha.htm
