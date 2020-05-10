@@ -9,14 +9,13 @@ main:-
 	read(X),nl,
 	dimensao(X, N),
 	random_rainhas(N,LR),
-	tabuleiro(N,LT,LR),
-	estado_inicial(LT).
-	%pesquisa_local_hill_climbingSemCiclos(L, []).
+	estado_inicial(LR),
+	pesquisa_local_hill_climbingSemCiclos(LR, []).
 
 
 dimensao(X, N):- N = X.
 
-estado_inicial(L).
+estado_inicial(E).
 
 random_rainhas(N,LR):-
 	random_rainhas(0,N,LR).
@@ -29,77 +28,52 @@ random_rainhas(Col,N,[H|T]):-
 	H = (Linha, Col1),
 	random_rainhas(Col1, N, T).
 
+oper(N, E, Es):-
+	nova_linha(Ls,1,N),
+	movimenta((L,C), (Ls,C), E, Es),
+	dif(L,Ls).
 
-tabuleiro(Tam, L,LR):- 
-	criar_linhas(0, Tam, L),
-	flatten(L,L1),
-	sort(1, @=<, LR, LROrd),
-	LF = [],
-	insere_rainhas(L1,LROrd,LF),
-	print_tabuleiro(Tam,LF).
+nova_linha(_,Linf,Lsup):-
+	Linf > Lsup,!,
+	fail.
 
-criar_linhas(NL, Tam, []):-
-	NL = Tam, !.
-criar_linhas(NL, Tam, [H|T]):-
-	L1 is NL + 1, 
-	init_linhas(1, L1, Tam, H),
-	criar_linhas(L1, Tam, T).
+nova_linha(Ls,Ls,_).
+nova_linha(Ls, Linf, Lsup):-
+	Linf1 is Linf + 1,
+	nova_linha(Ls, Linf1, Lsup).
 
-init_linhas(NC, _, Tam, []):-
-	NC > Tam, !.
-init_linhas(NC, L, Tam, [(p(L,NC),_)|T]) :-
-	C1 is NC + 1,
-	init_linhas(C1, L, Tam, T).
+movimenta(Rainha1, Rainha2, [Rainha1|T],[Rainha2|T]).
+movimenta(Rainha1, Rainha2, [H|T1], [H|T2]):-
+	movimenta(Rainha1, Rainha2, T1, T2).
 
+%Conta o num de rainhas que atacam outras rainhas
+heur(E, H):-
+	ataques(E, H).
 
-insere_rainhas([H|T], [HR|TR], LF):-
-	H = (p(L,C),_),
-	HR = (X,Y),
-	( (L==X , C ==Y)
-		-> H1 = (p(L,C),r),
-		append([H1],LF,LF1),
-		insere_rainhas(T,TR,LF1)
-		; append([H],LF,LF1),
-		insere_rainhas(T,[HR|TR],LF1)
-	).
+ataques(E,H):-
+	contagem_ataques(E,E,0,H).
 
+contagem_ataques([],_,N,N).
+contagem_ataques([Rainha|T], E, NA, N):-
+	ataca(Rainha, E, X),
+	NA1 is NA+X,
+	contagem_ataques(T, E, NA1, N).
 
+ataca(Rainha, E, 0):-
+	nao_ataca(Rainha, E), !.
+	ataca(_,_,1).
 
+nao_ataca(_,[]).
+nao_ataca((L,C), [(L1,C1)|T]):-
+	L =\= L1,
+	C =\= C1,
+	Laux is L-L1,
+	Laux =\= C-C1,
+	Laux =\= C1-C,
+	nao_ataca((L,C),T).
 
-
-
-
-
-
-
-insere(Coluna, Linha, J, [H|T], [H|Ts]):-
-	H = (p(X,Y),_),
-	(dif(Linha,X); dif(Coluna,Y)),
-	insere(Coluna, Linha, J,T,Ts).
-
-insere(Coluna, Linha, J, [H|T], [Hs|T]):-
-	H = (p(Linha, Coluna),v),
-	Hs = (p(Linha, Coluna),J), !.
-
-
-print_tabuleiro([]).
-print_tabuleiro(N,[(p(_,Y),J)|T]):-
-	write(J), 
-	write(' | '),
-	(Y = N
-		-> nl,
-		print_tabuleiro(T)
-		; print_tabuleiro(T)
-	).
-
-restricoes():-
-	linhas(),
-	diagonais().
-
-linhas().
-
-diagonais().
-
-op():-.
+estado_final(E):-
+	ataques(E,H),
+	H == 0.
 
 %https://sites.icmc.usp.br/sandra/G6_t2/rainha.htm
