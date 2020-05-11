@@ -2,16 +2,6 @@
 %% Ana Ferro
 
 main:-
-	[hill_climbing],
-	write('		PROBLEMA DAS N RAINHAS'),nl,
-	write('Introduza o número de rainhas (entre 4 e 20):'),nl,
-	read(X),nl,
-	dimensao(X, N),
-	random_rainhas(N,LR),
-	estado_inicial(LR),
-	time(pesquisa_local_hill_climbing(LR)).
-
-main_SC:-
 	[hill_climbing_SC],
 	write('		PROBLEMA DAS N RAINHAS'),nl,
 	write('Introduza o número de rainhas (entre 4 e 20):'),nl,
@@ -19,7 +9,7 @@ main_SC:-
 	dimensao(X, N),
 	random_rainhas(N,LR),
 	estado_inicial(LR),
-	pesquisa_local_hill_climbingSemCiclos(LR,[]).
+	time(pesquisa_local_hill_climbingSemCiclos(LR,[])).
 
 dimensao(X, N):- N = X.
 
@@ -76,7 +66,7 @@ ataca(Rainha, E, X):-
 
 nao_ataca(_,[]).
 nao_ataca(Rainha, [Rainha|T]):-
-	nao_ataca(Rainha, T).
+	!, nao_ataca(Rainha, T).
 
 nao_ataca((L,C), [(L1,C1)|T]):-
 	L =\= L1,
