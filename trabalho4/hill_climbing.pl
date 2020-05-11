@@ -1,5 +1,12 @@
+%% Sarah Simon Luz
+%% Ana Ferro
+
+%representacao dos nos
+%no(Estado,Heuristica)
+
 pesquisa_local_hill_climbing(E) :- 
-	estado_final(E).
+	estado_final(E),
+	write(E).
 
 pesquisa_local_hill_climbing(E) :- 
 	expande(E,Lseg),

@@ -2,10 +2,11 @@
 %% Ana Ferro
 
 %representacao dos nos
-%no(Estado,Operador,Heuristica)
+%no(Estado,Heuristica)
 
 pesquisa_local_hill_climbingSemCiclos(E, _) :- 
-	estado_final(E).
+	estado_final(E),
+	write(E).
 
 pesquisa_local_hill_climbingSemCiclos(E, L) :- 
 	expande(E,LSeg),
