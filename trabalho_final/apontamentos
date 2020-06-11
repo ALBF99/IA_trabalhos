@@ -1,0 +1,47 @@
+48 sementes
+14 buracos (2 filas de 6buracos; 2buracos, 1 em cada extremidade(depositos))
+
+Vencedor: obter 25 sementes ou +
+
+REGRAS:
+-> 1º a jogar: aquele que adivinhar em que mão a sememte está
+	Fazer vez aleatoria?
+
+Cada jogador: 6 buracos e deposito á direita
+
+	
+	MOVIMENTOS
+	->no inicio, 4 sementes em cada casa
+	->colhe todas as sementes do seu buraco e distribui uma a uma nos buracos seguintes, sentido contrario ao relogio
+	->se a casa tiver + que 12 sementes, dá volta completa ao tabuleiro e salta a casa de onde partiu
+	->não pode mexer em casas com apenas 1 semente se houver outras casa com +
+
+	CAPTURAS:
+	->ao depositarmos a ultima semente numa casa adversaria com 2 ou 3 sementes (contando com a semente que depositamos), podemos captura-las (metemo-las no deposito). Todas as casas anteriores que tiverem 2 ou 3 sementes e pertençam ao adversario podemos capturá las (até encontrar uma casa que nao cumpra estas condiçoes).
+
+	REGRAS SUPLEMENTARES
+	Quando um dos jogadores fica sem sementes.
+	-> o adversario é obrigado a efetuar um movimento que introduza sementes do outro lado
+	->se o jogador realizar uma captura e deixar o adversario sem sementes, este tem que afetuar outra jogada de modo a introduzir sementes nas casas do adversário (se o jogador nao tiver sementes a partida finaliza)
+
+	FIM DA PARTIDA
+	->Quando um jogador capturar 25 ou mais sementes
+	->Quando um jogador fica sem sementes e o adversario não pode colocar sementes do lado do jogador, a partida termina e o adversario recolhe as sementes que estao nas suas casas para o seu deposito. Ganha quem tiver mais sementes
+	->Quando a partida está a finalizar e encontramo nos numa situaçao que se repete ciclicamente, sem que os jogadores possam evita lo, cada jogador recolhe as sementes das suas casa. Ganha quem tiver mais sementes.
+
+
+
+	+-------+-------+-------+-------+-------+-------+-------+-------+
+	|		|1		|2		|3		|4		|5		|6		|		|
+	|		|	4	|	4	|	4	|	4	|	4	|	4	|		|
+	|		|_______|_______|_______|_______|_______|_______|		|	
+	|		|1		|2		|3		|4		|5		|6		|		|
+	|		|	4	|	4	|	4	|	4	|	4	|	4	|		|
+	|		|		|		|		|		|		|		|		|
+	+-------+-------+-------+-------+-------+-------+-------+-------+
+
+
+https://github.com/myrmarachne/mancala-prolog/blob/master/main.pl
+http://blog.melindalu.com/2013-01-30-mancala.html
+https://github.com/LynxEyes/ouri
+https://github.com/myrmarachne/mancala-prolog/blob/master/basic_rules.pl

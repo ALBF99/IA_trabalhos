@@ -66,7 +66,7 @@ ataca(Rainha, E, X):-
 
 nao_ataca(_,[]).
 nao_ataca(Rainha, [Rainha|T]):-
-	!, nao_ataca(Rainha, T).
+	 nao_ataca(Rainha, T).
 
 nao_ataca((L,C), [(L1,C1)|T]):-
 	L =\= L1,
@@ -79,11 +79,4 @@ nao_ataca((L,C), [(L1,C1)|T]):-
 estado_final(E):-
 	ataques(E,H),
 	H == 0.
-
-%https://sites.icmc.usp.br/sandra/G6_t2/rainha.htm
-%http://wiki.di.uminho.pt/twiki/pub/Education/LC/0506/prolog93-100.pdf
-%https://sites.icmc.usp.br/sandra/G6_t2/rainha.htm
-%https://pt.wikibooks.org/wiki/Prolog/Exemplos
-%http://www.cse.unsw.edu.au/~billw/prologdict.html
-
 
