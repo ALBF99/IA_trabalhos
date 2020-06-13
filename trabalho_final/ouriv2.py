@@ -1,12 +1,13 @@
-PLAYER = True
-OPPONENT = False
+PLAYER = 'J'
+COMPUTER = 'C' 
 N_PITS = 12
 
+
 class Game:
-	def __init__(self):
-		self.board = [[0,0,0,0,0,0,0,5,4,0,0,0],[0,0]]
-		self.player_turn = None #we decide who starts
-		self.winner = None 
+	def __init__(self, player):
+		self.board = [[4,4,4,4,4,4,4,4,4,4,4,4],[0,0]]
+		self.player_turn = player #we decide who starts
+		#self.winner
 
 	def display_board(self):
 		print("            1       2       3       4       5       6 ")
@@ -41,28 +42,33 @@ class Game:
 		print("+-------+-------+-------+-------+-------+-------+-------+-------+")
 		self.board[0] = list(reversed(self.board[0]))
 
-
-	def make_move(self, pit, player):
-		self.reverse_lists(player)
-
-		#if opponent_empty():
-
-		last_pit = self.normal_move(pit)
-
-		if last_pit > 5:
-			print(last_pit)
-			self.capture(last_pit)
-
-		self.reverse_lists(player)
-
-		
-	def reverse_lists(self,player):
-		if player:
-			self.board[0] = list(reversed(self.board[0]))
-			self.board[1] = list(reversed(self.board[1]))
+	def reverse_lists(self):
+		self.board[0] = list(reversed(self.board[0]))
+		self.board[1] = list(reversed(self.board[1]))
 
 
-	def normal_move(self,pit):
+	def opponent_empty(self):
+		if sum(self.board[0][6:]) > 0:
+			return False
+		return True
+
+
+	def possible_moves(self):
+		moves = list()
+
+		for idx in range(6):
+			seeds = self.board[0][idx]
+
+			if idx+1+seeds > 6:
+				moves.append(idx+1)
+
+		if not moves:
+			return None
+		else:
+			return moves
+
+
+	def make_move(self,pit):
 		seeds = self.board[0][pit-1]
 		self.board[0][pit-1] = 0
 		idx = pit
@@ -77,7 +83,6 @@ class Game:
 			idx += 1
 			idx %= N_PITS
 
-	#def empty_move(self):
 
 	def capture(self,pit):
 		count_seeds = 0
@@ -90,71 +95,15 @@ class Game:
 		self.board[1][0] += count_seeds
 
 
-	def opponent_empty(self):
-		if sum(self.board[0][6:]) > 0:
-			return False
-		return True
 
 
-	def game_over(self):
-		if self.board[1][0] == 24 and self.board[1][0] == 24:
-			return "Tied"
-
-		elif self.board[1][0] >= 25:
-			return "Computer"
-
-		elif sel.board[1][1] >= 25:
-			return "Player"
-
-		return None
-
-	def possible_moves(self):
-		possible_moves = list()
-
-		for idx in range(6):
-			seeds = self.board.[0][idx]
-
-			if idx+1+seeds > 6:
-				possible_moves.append(idx+1)
-
-		if not posible_moves:
-			return None
-		else:
-			return posible_moves
+class Computer:
+	def __init__(self):
+		self.player = COMPUTER
 
 
 
 
-
-	#def valid_move(self, pit):
-		#if opponent_empty():
-
-	#def best_move(self):
-
-	#def minimax(self, )
-
-class IA:
-
-
-def player_move(game):
-	pit = input("->Player move: ")
-
-	while not valid_move(int(pit)):
-		pit = input("->Player move: ")
-
-	game.make_move(int(pit),PLAYER)
-	
-
-def valid_move(pit):
-	if pit > 6:
-		return False
-	return True
-
-def play_game:
-	while True:
-		game.display_board()
-
-		if game.game_over() != None
 
 
 
@@ -162,25 +111,63 @@ def menu():
 	print("		     WELCOME TO OURI GAME\n\n")
 	#RULES
 
+def valid_move(pit):
+	if pit > 6:
+		return False
+	return True
+
+def play_game():
+	game = Game(PLAYER)
+	computer = Computer()
+
+	while True:
+		game.display_board()
+		#check if chegou ao fim/ alguem ganhou
+
+		#computer turn
+		if game.player_turn == computer.player:
+			print(winner)
+		#player turn
+		else:
+			game.reverse_lists()
+
+			#opponet don't have any seeds
+			if game.opponent_empty():
+				moves = game.possible_moves()
+
+				#no moves left
+				if moves == None:
+					game.retrive_seeds()
+
+				else:
+					pit = input("->Player move: ")
+
+					#making sure the player's move puts seeds in the opponent side
+					while int(pit) not in moves:
+						pit = input("->Player move:")
+
+					game.make_move(int(pit))
+
+			#normal move
+			else:
+				pit = input("->Player move: ")
+
+				while not valid_move(int(pit)):
+					pit = input("->Player move: ")
+
+				last_pit = game.make_move(int(pit))
+
+				if last_pit > 5:
+					game.capture(last_pit)
+				
+
+			game.reverse_lists()
+
 
 def main():
 	menu()
 
-	game = Game()
-
-	while True:
-		game.display_board()
-		player_move(game)
-	#play = True
-
-	#while play:
-		#if player_turn:
-
-			#player_turn = False
-
-		#else:
-			#player_turn = True
-
+	play_game()
 
 if __name__=='__main__':
         main()
