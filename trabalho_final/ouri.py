@@ -4,7 +4,7 @@ N_PITS = 12
 
 class Game:
 	def __init__(self):
-		self.board = [[0,0,0,0,0,0,0,5,4,0,0,0],[0,0]]
+		self.board = [[4,4,4,4,4,4,4,4,4,4,4,4],[0,0]]
 		self.player_turn = None #we decide who starts
 		self.winner = None 
 

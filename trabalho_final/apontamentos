@@ -54,3 +54,33 @@ https://github.com/138paulmiller/Mancala-AI-Bot/blob/master/mancala.py
 https://github.com/cypreess/py-mancala/blob/master/mancala.py
 https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
 
+
+
+	#opponet don't have any seeds
+			if game.opponent_empty():
+				moves = game.possible_moves(EMPTY)
+
+				#no moves left
+				if not moves:
+					game.retrive_seeds()
+
+				else:
+					pit = input("->Player move: ")
+
+					#making sure the player's move puts seeds in the opponent side
+					while int(pit) not in moves:
+						pit = input("->Player move:")
+
+					game.make_move(int(pit))
+
+			#normal move
+			else:
+				pit = input("->Player move: ")
+
+				while not game.valid_move(int(pit)):
+					pit = input("->Player move: ")
+
+				last_pit = game.make_move(int(pit))
+
+				if last_pit > 5:
+					game.capture(last_pit)

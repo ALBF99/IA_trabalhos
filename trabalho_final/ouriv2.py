@@ -2,7 +2,6 @@ PLAYER = 'J'
 COMPUTER = 'C' 
 N_PITS = 12
 
-
 class Game:
 	def __init__(self, player):
 		self.board = [[4,4,4,4,4,4,4,4,4,4,4,4],[0,0]]
@@ -42,6 +41,12 @@ class Game:
 		print("+-------+-------+-------+-------+-------+-------+-------+-------+")
 		self.board[0] = list(reversed(self.board[0]))
 
+	def get_score(self):
+		return self.board[1][0]
+
+	def get_score_opponent(self):
+		return self.board[1][1]
+
 	def reverse_lists(self):
 		self.board[0] = list(reversed(self.board[0]))
 		self.board[1] = list(reversed(self.board[1]))
@@ -56,16 +61,21 @@ class Game:
 	def possible_moves(self):
 		moves = list()
 
-		for idx in range(6):
-			seeds = self.board[0][idx]
+		if self.opponent_empty():
+			for idx in range(6):
+				seeds = self.board[0][idx]
 
-			if idx+1+seeds > 6:
-				moves.append(idx+1)
+				if idx+1+seeds > 6:
+					moves.append(idx+1)
 
-		if not moves:
-			return None
 		else:
-			return moves
+			for idx in range(6):
+				seeds = self.board[0][idx]
+
+				if seeds > 0:
+					moves.append(idx+1)
+
+		return moves
 
 
 	def make_move(self,pit):
@@ -94,15 +104,49 @@ class Game:
 
 		self.board[1][0] += count_seeds
 
+	def valid_move(self,pit):
+		if pit > 6 and self.board[0][pit-1] == 0:
+			return False
+		return True
 
+	def game_over(self):
+		return self.get_score() + self.get_score_opponent() == 48
 
 
 class Computer:
 	def __init__(self):
 		self.player = COMPUTER
+		
+
+	def heuristic(self, board):
+		return board.get_score() - board.get_score_opponent()
 
 
+	def minimax(self, depth, maximizer=False):
+		value = 0
 
+		if depth == 0 or board.game_over():
+			return self.heuristic(board)
+
+		if maximizer:
+			value = -120
+			board_copy = Board(board)
+			moves = board.possible_moves()
+
+			for move in moves:
+				val = self.minimax(depth-1, not maximizer)
+				value = max(value, val)
+
+		else:
+			value = 120
+			board_copy = Board(board)
+			moves = board.possible_moves()
+
+			for move in moves:
+				val = self.minimax(depth-1, not maximizer) #maximizer/not maximizer ??
+				value = min(value, val)
+
+		return value
 
 
 
@@ -111,10 +155,6 @@ def menu():
 	print("		     WELCOME TO OURI GAME\n\n")
 	#RULES
 
-def valid_move(pit):
-	if pit > 6:
-		return False
-	return True
 
 def play_game():
 	game = Game(PLAYER)
@@ -131,29 +171,18 @@ def play_game():
 		else:
 			game.reverse_lists()
 
-			#opponet don't have any seeds
-			if game.opponent_empty():
-				moves = game.possible_moves()
 
-				#no moves left
-				if moves == None:
-					game.retrive_seeds()
+			moves = game.possible_moves()
 
-				else:
-					pit = input("->Player move: ")
-
-					#making sure the player's move puts seeds in the opponent side
-					while int(pit) not in moves:
-						pit = input("->Player move:")
-
-					game.make_move(int(pit))
-
-			#normal move
+			#no moves left
+			if not moves:
+				game.retrive_seeds()
 			else:
 				pit = input("->Player move: ")
 
-				while not valid_move(int(pit)):
-					pit = input("->Player move: ")
+				while int(pit) not in moves:
+					pit = input("->Player move:")
+
 
 				last_pit = game.make_move(int(pit))
 
