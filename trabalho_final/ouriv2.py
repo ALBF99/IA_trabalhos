@@ -2,7 +2,7 @@ PLAYER = 'J'
 COMPUTER = 'C' 
 N_PITS = 12
 
-class Game:
+class Board:
 	def __init__(self, player):
 		self.board = [[4,4,4,4,4,4,4,4,4,4,4,4],[0,0]]
 		self.player_turn = player #we decide who starts
@@ -65,20 +65,21 @@ class Game:
 			for idx in range(6):
 				seeds = self.board[0][idx]
 
-				if idx+1+seeds > 6:
-					moves.append(idx+1)
+				if idx+seeds > 5:
+					moves.append(idx)
 
 		else:
 			for idx in range(6):
 				seeds = self.board[0][idx]
 
 				if seeds > 0:
-					moves.append(idx+1)
+					moves.append(idx)
 
 		return moves
 
 
 	def make_move(self,pit):
+		print("aqui")
 		seeds = self.board[0][pit-1]
 		self.board[0][pit-1] = 0
 		idx = pit
@@ -122,31 +123,60 @@ class Computer:
 		return board.get_score() - board.get_score_opponent()
 
 
-	def minimax(self, depth, maximizer=False):
-		value = 0
+	def minimax(self, depth, board, maximizer=False, sequence=[]):
+		#value = 0
 
-		if depth == 0 or board.game_over():
-			return self.heuristic(board)
+		if depth == 0:
+			return self.heuristic(board), sequence
 
 		if maximizer:
-			value = -120
+			value = -999
+			best_sequence = []
 			board_copy = Board(board)
-			moves = board.possible_moves()
+			moves = board_copy.possible_moves()
 
 			for move in moves:
-				val = self.minimax(depth-1, not maximizer)
+				val, seq = self.minimax(depth-1,board_copy, not maximizer, sequence + [move])
+				print(val)
 				value = max(value, val)
+				best_sequence = seq
+
+			#print(value,best_sequence)
+			return value, best_sequence
 
 		else:
-			value = 120
+			value = 999
+			best_sequence = []
 			board_copy = Board(board)
-			moves = board.possible_moves()
+
+			board_copy.reverse_lists()
+			moves = board_copy.possible_moves()
+			board_copy.reverse_lists()
 
 			for move in moves:
-				val = self.minimax(depth-1, not maximizer) #maximizer/not maximizer ??
+				val, seq = self.minimax(depth-1,board_copy, not maximizer, sequence + [move])
+				print(val)
 				value = min(value, val)
+				best_sequence = seq
+			
+			#print(value,best_sequence)
+			return value, best_sequence
 
-		return value
+
+	def best_move(self, board, moves):
+		for move in moves:
+			board_copy = Board(board)
+			moves = board_copy.possible_moves()
+
+			if not moves:
+				board.retrive_seeds()
+				return 
+
+			value = max(value)
+
+
+		
+
 
 
 
@@ -157,40 +187,53 @@ def menu():
 
 
 def play_game():
-	game = Game(PLAYER)
+	board = Board(PLAYER)
 	computer = Computer()
 
 	while True:
-		game.display_board()
+		board.display_board()
 		#check if chegou ao fim/ alguem ganhou
 
 		#computer turn
-		if game.player_turn == computer.player:
-			print(winner)
+		if board.player_turn == computer.player:
+			print("IA turn")
+			score, sequence = computer.minimax(2,board)
+			print(sequence)
+			for move in sequence:
+				print("aqui ",move)
+
+			last_pit = board.make_move(move+1)
+
+			if last_pit > 5:
+				board.capture(last_pit)
+
+			board.player_turn = PLAYER
+
 		#player turn
 		else:
-			game.reverse_lists()
+			board.reverse_lists()
 
 
-			moves = game.possible_moves()
+			moves = board.possible_moves()
 
 			#no moves left
 			if not moves:
-				game.retrive_seeds()
+				board.retrive_seeds()
 			else:
 				pit = input("->Player move: ")
 
-				while int(pit) not in moves:
+				while int(pit)-1 not in moves:
 					pit = input("->Player move:")
 
 
-				last_pit = game.make_move(int(pit))
+				last_pit = board.make_move(int(pit))
 
 				if last_pit > 5:
-					game.capture(last_pit)
+					board.capture(last_pit)
 				
 
-			game.reverse_lists()
+			board.reverse_lists()
+			board.player_turn = COMPUTER
 
 
 def main():

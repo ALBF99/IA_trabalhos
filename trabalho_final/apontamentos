@@ -53,7 +53,10 @@ https://gist.github.com/exallium/1446104/5109388cfc21578f555dcac0ba54da680326af7
 https://github.com/138paulmiller/Mancala-AI-Bot/blob/master/mancala.py
 https://github.com/cypreess/py-mancala/blob/master/mancala.py
 https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
+https://towardsdatascience.com/create-ai-for-your-own-board-game-from-scratch-minimax-part-2-517e1c1e3362
+https://pt.wikipedia.org/wiki/Minimax
 
+https://www.cs.swarthmore.edu/~meeden/cs63/s19/labs/03.html
 
 
 	#opponet don't have any seeds
@@ -84,3 +87,16 @@ https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python/
 
 				if last_pit > 5:
 					game.capture(last_pit)
+
+
+0 6 6 idx + seeds > 5
+1 5
+
+0 1 2 3 4 5
+0 0 0 0 0 0
+
+
+https://github.com/cypreess/py-mancala/blob/master/mancala.py
+https://github.com/suryaiyer/Intelligent-Agent/blob/master/src/Minimax.py
+https://github.com/suryaiyer/Intelligent-Agent/blob/master/src/mancala.py
+
