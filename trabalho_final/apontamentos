@@ -100,3 +100,24 @@ https://github.com/cypreess/py-mancala/blob/master/mancala.py
 https://github.com/suryaiyer/Intelligent-Agent/blob/master/src/Minimax.py
 https://github.com/suryaiyer/Intelligent-Agent/blob/master/src/mancala.py
 
+def possible_moves(self):
+		moves = list()
+
+		if self.opponent_empty():
+			for idx in range(6):
+				if self.valid_move(idx):
+				seeds = self.board[0][idx]
+
+				if idx+seeds > 5:
+					moves.append(idx)
+
+		else:
+			for idx in range(6):
+
+				if self.valid_move(idx):
+					moves.append(idx)
+
+				#seeds = self.board[0][idx]
+
+				#if seeds > 0:
+					#moves.append(idx)
