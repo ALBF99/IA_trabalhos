@@ -8,8 +8,9 @@ N_PITS = 12
 class Board:
 	def __init__(self, player):
 		self.board = [[4,4,4,4,4,4,4,4,4,4,4,4],[0,0]]
-		self.player_turn = player
+		self.player_turn = player #we decide who starts
 		
+
 	#refazer função
 	def display_board(self):
 		print("            1       2       3       4       5       6 ")
@@ -68,6 +69,7 @@ class Board:
 			if self.valid_move(idx, self.opponent_empty()):
 				moves.append(idx)
 
+		#print("possible",moves)
 		return moves
 
 
@@ -75,13 +77,8 @@ class Board:
 		seeds = self.board[0][pit]
 		self.board[0][pit] = 0
 		idx = pit+1
-		jump = pit
 
 		while True:
-			if idx == jump:
-				idx+=1
-				idx %= N_PITS
-
 			self.board[0][idx] += 1
 			seeds -= 1
 
@@ -114,7 +111,7 @@ class Board:
 		if pit_seeds == 0:
 			return False
 
-		elif pit_seeds == 1 and not all(i <= 1 for i in self.board[0][:6]):
+		elif pit_seeds == 1 and not all(i > 1 for i in self.board[0]):
 			return False
 
 		elif no_seeds_opponent and pit + pit_seeds < 5:
@@ -135,16 +132,21 @@ class Board:
 		else:
 			return False
 
+	
+		
+		
+
 
 class Computer:
-	def __init__(self, depth=4):
+	def __init__(self):
 		self.player = COMPUTER
-		self.depth = depth
 
 	def heuristic(self, board):
 		return (board.get_score() - board.get_score_opponent())
 
 	def maximizer(self,board,depth):
+		#print("player")
+		#print("maxi",depth)
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -154,17 +156,16 @@ class Computer:
 
 		for move in board_copy.possible_moves():
 			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.maximizer(board_copy, depth-1)
-			else:
-				val = self.minimizer(board_copy,depth-1) 
+			val = self.minimizer(board_copy,depth-1) 
 
 			if val > value:
 				value = val
+		#print("Maximizer",value)
 		return value
 
 	def minimizer(self, board,depth):
+		#print("ia")
+		#print("mini",depth)
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -174,17 +175,14 @@ class Computer:
 		for move in board_copy.possible_moves():
 
 			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.minimizer(board_copy,depth-1)
-			else:
-				val = self.maximizer(board_copy,depth-1) 
+			val = self.maximizer(board_copy,depth-1) 
 
 			if val < value:
 				value = val
+		#print("minimizer",value)
 		return value
 
-	def minimax(self, board, depth):
+	def minimaxMove(self, board, depth):
 		m = -1
 		value = -999
 
@@ -192,115 +190,75 @@ class Computer:
 			return self.heuristic(board)
 
 		if board.game_over():
-			return -1
+			return m
 
 		board_copy = copy.deepcopy(board)
-		moves = board_copy.possible_moves()
-		print(moves)
+		#board_copy.reverse_lists()
 
 		for move in board_copy.possible_moves():
+			#print("minimaxMove possible")
 			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.maximizer(board_copy, depth-1)
-			else:
-				val = self.minimizer(board_copy,depth-1) 
+			val = self.minimizer(board_copy,depth-1) 
 
 			if val > value:
 				m = move
 				value = val
 
-		print("best move", m)
-		if m == -1:
-			m = move
 		return m
 
-	def maximizerAB(self,board,depth, alpha, beta):
-		if depth == 0 or board.game_over():
-			return self.heuristic(board)
-
-		value = -999
-		board_copy = copy.deepcopy(board)
-		board_copy.reverse_lists()
-
-		for move in board_copy.possible_moves():
-			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.maximizer(board_copy, depth-1)
-			else:
-				val = self.minimizer(board_copy,depth-1) 
-
-			value = max(value, val)
-
-			if value >= beta:
-				return value
-
-			alpha = max(alpha, value)
-			
-		return value
-
-	def minimizerAB(self, board,depth, alpha, beta):
-		if depth == 0 or board.game_over():
-			return self.heuristic(board)
-
-		value = 999
-		board_copy = copy.deepcopy(board)
-		board_copy.reverse_lists()
-		for move in board_copy.possible_moves():
-
-			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.minimizer(board_copy,depth-1)
-			else:
-				val = self.maximizer(board_copy,depth-1) 
-
-			value = min(value, val)
-
-			if value <= alpha:
-				return value
-
-			beta = min(beta, value)
+	def minimax(self, depth, board, maximizer=False, sequence=[]):
 		
-		return value
+		if depth == 0 or board.game_over():
+			#print(board.game_over())
+			return self.heuristic(board), sequence
 
-	def alphaBeta(self,board,depth):
-		m = -1
-		value = -999
-		alpha = -999
-		beta = 999
+		if maximizer:
+			print("player")
+			value = -999
+			best_sequence = []
+			board_copy = copy.deepcopy(board)
+			board_copy.reverse_lists()
+			#print("ia")
+			moves = board_copy.possible_moves()
 
-		if depth == 0:
-			return self.heuristic(board)
+			for move in moves:
 
-		if board.game_over():
-			return -1
+				if board_copy.opponent_empty():
+					maximizer = False
 
-		board_copy = copy.deepcopy(board)
-		moves = board_copy.possible_moves()
-		print(moves)
+				board_copy.make_move(move)
+				
+				board_copy.reverse_lists()
+				board_copy.display_board()
+				val, seq = self.minimax(depth-1,board_copy, not maximizer, sequence + [move])
+				value = max(value, val)
+				best_sequence = seq
+			print("best_sequence",best_sequence)
+			return value, best_sequence
 
-		for move in board_copy.possible_moves():
-			board_copy.make_move(move)
+		else:
+			print("ia")
+			value = 999
+			best_sequence = []
+			board_copy = copy.deepcopy(board)
+			#board_copy.reverse_lists()
+			#print("player")
+			moves = board_copy.possible_moves()
+			
+			
+			for move in moves:
+				print(move)
+				if board_copy.opponent_empty():
+					maximizer = True
 
-			if board_copy.opponent_empty():
-				val = self.maximizerAB(board_copy, depth-1, alpha, beta)
-			else:
-				val = self.minimizerAB(board_copy,depth-1, alpha, beta) 
-
-			if val > value:
-				m = move
-				value = val
-
-			alpha = max(value, alpha)
-
-		print("best move", m)
-		if m == -1:
-			m = move
-		return m
-
-
+				board_copy.make_move(move)
+				board_copy.display_board()
+				#board_copy.reverse_lists()
+				val, seq = self.minimax(depth-1,board_copy, not maximizer, sequence + [move])
+				value = min(value, val)
+				best_sequence = seq
+			print("best_sequence",best_sequence)
+			return value, best_sequence
 
 
 def menu():
@@ -315,38 +273,35 @@ def play_game(turn):
 
 	while True:
 		board.display_board()
+
 		#check if chegou ao fim/ alguem ganhou
 		if board.game_over():
 			if board.get_score() >=25:
 				print("Computer won!")
-				#exit()
-				break
 			if board.get_score_opponent() >= 25:
 				print("Player won!")
-				#exit()
-				break
 			if board.get_score() == 24 and board.get_score_opponent() == 24:
 				print("It's a tie!")
-				#exit()
-				break
 
-		
+			exit()
+
 		#computer turn
 		if board.player_turn == computer.player:
 			print("IA turn")
 
-			move = computer.minimax(board,4)
+			move = computer.minimaxMove(board,4)
 
 			if move == -1:
 				break;
 
-			board.make_move(move) #??
+			board.make_move(move)
 
 			board.player_turn = PLAYER
 
 		#player turn
 		else:
 			board.reverse_lists()
+
 			moves = board.possible_moves()
 
 			if moves:
@@ -360,8 +315,6 @@ def play_game(turn):
 
 			board.reverse_lists()
 			board.player_turn = COMPUTER
-
-	print("END")
 
 if __name__=='__main__':
         parser = argparse.ArgumentParser(description='Ouri')
