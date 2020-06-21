@@ -2,7 +2,7 @@ import copy
 import argparse
 
 PLAYER = 'J'
-COMPUTER = 'C' 
+IA = 'C' 
 N_PITS = 12
 
 class Board:
@@ -335,7 +335,7 @@ def play_game(turn):
 		if board.player_turn == computer.player:
 			print("IA turn")
 
-			move = computer.minimax(board,4)
+			move = computer.minimax(board,8)
 
 			if move == -1:
 				break;
