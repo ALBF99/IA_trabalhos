@@ -1,3 +1,4 @@
+from OuriIA import *
 
 IA = 1
 IA_2 = 2
@@ -89,7 +90,7 @@ class Board:
 		if pit_seeds == 0:
 			return False
 
-		elif pit_seeds == 1 and not all(i <= 1 for i in row):
+		elif not no_seeds_opponent and pit_seeds == 1 and not all(i <= 1 for i in row):
 			return False
 
 		elif no_seeds_opponent and pit + pit_seeds < 5:
@@ -188,14 +189,112 @@ class Board:
 		else:
 			return False
 
+class IA:
+
+	def heuristic(self, board):
+		if board.player_turn == IA:
+			return board.score1 - board.score2
+
+		else:
+			return board.score2 - board.score1
+
+	def maximizer(self,board,depth):
+		print("maxi")
+		if depth == 0 or board.game_over():
+			return self.heuristic(board)
+
+		value = -999
+		
+
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board)
+			board_copy.player_turn = IA
+			board_copy.make_move(move)
+
+			if board_copy.opponent_empty():
+				val = self.maximizer(board_copy, depth-1)
+			else:
+				val = self.minimizer(board_copy,depth-1) 
+				
+			if val > value:
+				value = val
+		return value
+
+	def minimizer(self, board,depth):
+		print("mini")
+		if depth == 0 or board.game_over():
+			return self.heuristic(board)
+
+		value = 999
+		
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board)
+			board_copy.player_turn = PLAYER
+			board_copy.make_move(move)
+
+			if board_copy.opponent_empty():
+				val = self.minimizer(board_copy,depth-1)
+			else:
+				val = self.maximizer(board_copy,depth-1) 
+				
+			if val < value:
+				value = val
+		return value
+
+	def minimax(self, board, depth):
+		m = -1
+		value = -999
+
+		if depth == 0:
+			return self.heuristic(board)
+
+		if board.game_over():
+			return -1
+
+
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board)
+			board_copy.player_turn = IA
+			board_copy.make_move(move)
+
+			if board_copy.opponent_empty():
+				val = self.maximizer(board_copy, depth-1)
+			else:
+				val = self.minimizer(board_copy,depth-1) 
+				
+			if val > value:
+				m = move
+				value = val
+			print("minimax value",val)
+
+
+		print("best move", m)
+		if m == -1:
+			m = move
+		return m
+
+
+
+
 
 
 #def menu():
 
-def play_game(board):
+def play_game(board, ia):
+
 	while True:
 		if board.player_turn == IA:
 
+
+			move = ia.minimax(board,3)
+
+			if move == -1:
+				break;
+			print(move)
+			board.make_move(move) #??
+
+			board.player_turn = PLAYER
+			
 		else:
 			board.display_board()
 			moves = board.possible_moves()
@@ -207,10 +306,17 @@ def play_game(board):
 					pit = input("->Player move:")
 
 				board.make_move(int(pit)-1)
+				board.player_turn = IA
+
+			if board.opponent_empty():
+				board.player_turn = PLAYER
+
 				
 
 
 if __name__=='__main__':
 	board = Board()
+	ia = IA()
+	
 
-	play_game(board)
+	play_game(board, ia)

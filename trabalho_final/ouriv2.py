@@ -138,13 +138,14 @@ class Board:
 
 class Computer:
 	def __init__(self, depth=4):
-		self.player = COMPUTER
+		self.player = IA
 		self.depth = depth
 
 	def heuristic(self, board):
 		return (board.get_score() - board.get_score_opponent())
 
 	def maximizer(self,board,depth):
+		print("maxi")
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -159,12 +160,13 @@ class Computer:
 				val = self.maximizer(board_copy, depth-1)
 			else:
 				val = self.minimizer(board_copy,depth-1) 
-
+				
 			if val > value:
 				value = val
 		return value
 
 	def minimizer(self, board,depth):
+		print("mini")
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -179,12 +181,13 @@ class Computer:
 				val = self.minimizer(board_copy,depth-1)
 			else:
 				val = self.maximizer(board_copy,depth-1) 
-
+				
 			if val < value:
 				value = val
 		return value
 
 	def minimax(self, board, depth):
+		print("maxi")
 		m = -1
 		value = -999
 
@@ -196,7 +199,6 @@ class Computer:
 
 		board_copy = copy.deepcopy(board)
 		moves = board_copy.possible_moves()
-		print(moves)
 
 		for move in board_copy.possible_moves():
 			board_copy.make_move(move)
@@ -205,10 +207,11 @@ class Computer:
 				val = self.maximizer(board_copy, depth-1)
 			else:
 				val = self.minimizer(board_copy,depth-1) 
-
+				
 			if val > value:
 				m = move
 				value = val
+			print("minimax value",val)
 
 		print("best move", m)
 		if m == -1:
@@ -335,7 +338,7 @@ def play_game(turn):
 		if board.player_turn == computer.player:
 			print("IA turn")
 
-			move = computer.minimax(board,8)
+			move = computer.minimax(board,3)
 
 			if move == -1:
 				break;
@@ -359,7 +362,7 @@ def play_game(turn):
 				
 
 			board.reverse_lists()
-			board.player_turn = COMPUTER
+			board.player_turn = IA
 
 	print("END")
 
