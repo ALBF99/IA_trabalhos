@@ -60,7 +60,9 @@ class Ia:
 		if board.game_over():
 			return -1
 
-		for move in board.possible_moves():
+		moves = board.possible_moves()
+
+		for move in moves:
 			board_copy = copy.deepcopy(board) # new child node
 			board_copy.player_turn = IA
 			board_copy.make_move(move)
@@ -73,6 +75,9 @@ class Ia:
 			if val > value:
 				m = move
 				value = val
+
+		if len(moves) == 1:
+			return move
 
 		return m
 
@@ -138,7 +143,9 @@ class Ia:
 		if board.game_over():
 			return -1
 
-		for move in board.possible_moves():
+		moves = board.possible_moves()
+
+		for move in moves:
 			board_copy = copy.deepcopy(board) # new child node
 			board_copy.player_turn = IA_2
 			board_copy.make_move(move)
@@ -153,5 +160,9 @@ class Ia:
 				value = val
 
 			alpha = max(value, alpha)
-			
+		
+
+		if len(moves) == 1:
+			return move
+
 		return m

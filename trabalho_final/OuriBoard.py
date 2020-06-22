@@ -1,4 +1,6 @@
 import copy
+import time
+import argparse
 from OuriIA import *
 
 IA = 1
@@ -13,7 +15,7 @@ class Board:
 		self.score1 = 0
 		self.score2 = 0
 		self.player_turn = player_turn #1- ia; 2-human or ia 
-		self.winner = winner
+		self.winner = "No winner!"
 
 	def display_board(self):
 		str1 = "            1       2       3       4       5       6"
@@ -61,6 +63,7 @@ class Board:
 				print("   "+str(score)+"   |")
 
 
+	#check if the opponent don't have seeds to move
 	def opponent_empty(self):
 		if self.player_turn == IA:
 			return sum(self.row2) == 0
@@ -72,6 +75,7 @@ class Board:
 		#if pit has seeds
 		#if pit is between 0 and 5
 		#you can only choose a pit with one seed, if you don't have any other pit with more
+
 		if self.player_turn == IA:
 			row = self.row1
 		else:
@@ -85,19 +89,21 @@ class Board:
 		elif not no_seeds_opponent and pit_seeds == 1 and not all(i <= 1 for i in row):
 			return False
 
-		elif no_seeds_opponent and pit + pit_seeds < 5:
+		elif no_seeds_opponent and pit + pit_seeds < 6:
 			return False
 
 		else:
 			return True
 
 
+	#Legal moves the player can do 
 	def possible_moves(self):
 		moves = list()
+
 		for pit in range(6):
 			if self.valid_move(pit, self.opponent_empty()):
 				moves.append(pit)
-
+		
 		return moves
 
 
@@ -110,6 +116,7 @@ class Board:
 		return opponent_row, row, side
 
 
+	#Move seeds across the board
 	def make_move(self, pit):
 		if self.player_turn == IA:
 			row = self.row1
@@ -138,8 +145,10 @@ class Board:
 				seeds -= 1
 				pit += 1
 		
+		#check if the last seed was put in the opponent side
 		if side != self.player_turn:
 			self.capture(pit-1, row)
+
 
 
 	def capture(self, pit, row):
@@ -157,6 +166,9 @@ class Board:
 
 
 	def game_over(self):
+		if self.no_more_moves():
+			self.retrive_seeds()
+
 		if self.score1 >= 25:
 			self.winner = "IA won!"
 			return True
@@ -169,16 +181,17 @@ class Board:
 			self.winner = "Tie!"
 			return True
 
-		elif self.no_more_moves():
-			self.retrive_seeds()
-			self.winner = "No winner!"
-			return True
-
 		else:
 			return False
 
+		return True
+
 	def no_more_moves(self):
 		if not self.possible_moves() and self.opponent_empty():
+			return True
+
+		if self.detect_cycle():
+			print("detetou")
 			return True
 
 		return False
@@ -193,18 +206,38 @@ class Board:
 			self.score2 += seeds2
 			self.row2 = [0,0,0,0,0,0]
 
-	#def detect_cycle(self):
+	def detect_cycle(self):
+		if sum(self.row1) == 1 and sum(self.row2) == 1 and self.row1 == self.row2:
+			return True
+
+		return False
+			 
 
 
 
-def menu():
-	print()
-def ia_vs_ia(board, ia, ia2):
+def menu(first_player):
+	print("		     WELCOME TO OURI GAME\n\n")
+	
+	print("1- player vs ia")
+	print("2- ia vs ia")
+
+	choice = input()
+
+	if choice == str(1):
+		player_vs_ia(first_player)
+	else:
+		ia_vs_ia(first_player)
+
+def ia_vs_ia(first_player):
+	board = Board(first_player)
+	ia = Ia()
+	ia2 = Ia()
 
 	while True:
 		board.display_board()
 
 		if board.game_over():
+			board.display_board()
 			print(board.winner)
 			break
 
@@ -213,20 +246,18 @@ def ia_vs_ia(board, ia, ia2):
 
 			move = ia.minimax(board,7)
 			
-			if move == -1:
-				break;
-			
-			board.make_move(move) 
+			if move != -1:
+				board.make_move(move) 
 
-			if board.opponent_empty():
-				board.player_turn = IA
-			else:
-				board.player_turn = IA_2
+				if board.opponent_empty():
+					board.player_turn = IA
+				else:
+					board.player_turn = IA_2
 
 		else:
 			print("Alphabeta turn")
 
-			move = ia2.alphaBeta(board,7)
+			move = ia2.alphaBeta(board,11)
 
 			if move == -1:
 				break;
@@ -239,30 +270,33 @@ def ia_vs_ia(board, ia, ia2):
 				board.player_turn = IA
 
 
+def player_vs_ia(first_player):
+	board = Board(first_player)
+	ia = Ia()
 
-def player_vs_ia(board, ia):
-	
 	while True:
 		board.display_board()
 
 		if board.game_over():
+			board.display_board()
 			print(board.winner)
 			break
+
 
 		if board.player_turn == IA:
 			print("IA turn")
 
-			move = ia.minimax(board,11)
+			start_time = time.time()
+			move = ia.minimax(board,10)
+			print("--- %s seconds ---" % round(time.time() - start_time))
 			
-			if move == -1:
-				break;
-			
-			board.make_move(move) 
+			if move != -1:
+				board.make_move(move)
 
-			if board.opponent_empty():
-				board.player_turn = IA
-			else:
-				board.player_turn = PLAYER
+				if board.opponent_empty():
+					board.player_turn = IA
+				else:
+					board.player_turn = PLAYER
 			
 		else:
 			moves = board.possible_moves()
@@ -280,13 +314,14 @@ def player_vs_ia(board, ia):
 			else:
 				board.player_turn = IA
 
-				
-
 
 if __name__=='__main__':
-	board = Board()
-	ia = Ia()
-	ia2 = Ia()
-	
-	#player_vs_ia(board, ia)
-	ia_vs_ia(board, ia, ia2)
+	parser = argparse.ArgumentParser(description='Ouri')
+	parser.add_argument('-p', help="Computer plays first", action="store_true")
+	parser.add_argument('-s', help="Player plays first", action="store_false")
+	args = parser.parse_args()
+
+	if args.p == True:
+		menu(IA)
+	else:
+		menu(PLAYER)
