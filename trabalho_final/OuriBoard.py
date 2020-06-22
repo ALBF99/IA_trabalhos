@@ -1,3 +1,4 @@
+import copy
 from OuriIA import *
 
 IA = 1
@@ -6,12 +7,13 @@ PLAYER = 2
 
 
 class Board:
-	def __init__(self, player_turn=2):
-		self.row1 = [2,2,2,2,2,2]
+	def __init__(self, player_turn=2, winner=None):
+		self.row1 = [4,4,4,4,4,4]
 		self.row2 = [4,4,4,4,4,4]
 		self.score1 = 0
 		self.score2 = 0
 		self.player_turn = player_turn #1- ia; 2-human or ia 
+		self.winner = winner
 
 	def display_board(self):
 		str1 = "            1       2       3       4       5       6"
@@ -25,24 +27,14 @@ class Board:
 		print(str2)
 		print(str3)
 		print(str5, end='')
-
-		self.print_pits_board(self.row1)
-
+		self.print_pits_board(list(reversed(self.row1)))
 		print(str6)
-
-
 		self.print_score_board(self.score1,True)
-
 		print(str4,end='')
-
 		self.print_score_board(self.score2,False)
-
 		print(str3)
 		print(str5, end='')
-		list(reversed(self.row2))
 		self.print_pits_board(self.row2)
-		list(reversed(self.row2))
-
 		print(str6)
 		print(str3)
 		print(str2)
@@ -134,41 +126,29 @@ class Board:
 		pit += 1
 
 		while seeds > 0:
-			if side == self.player_turn:
-				if pit == jump:
-					pit += 1
+			if side == self.player_turn and pit == jump:
+				pit += 1
 
-				if pit == 6:
-					row, opponent_row, side = self.switch_sides(row, opponent_row)
-					pit = 5
-
-				else:
-					row[pit] += 1
-					seeds -= 1
-					pit += 1
+			if pit == 6:
+				row, opponent_row, side = self.switch_sides(row, opponent_row)
+				pit = 0
 
 			else:
-				if pit == -1:
-					row, opponent_row, side = self.switch_sides(row, opponent_row)
-					pit = 0
-					
-				else:
-					row[pit] += 1
-					seeds -= 1
-					pit -= 1
-
-
+				row[pit] += 1
+				seeds -= 1
+				pit += 1
+		
 		if side != self.player_turn:
-			self.capture(pit+1, row)
+			self.capture(pit-1, row)
 
 
 	def capture(self, pit, row):
 		count_seeds = 0
 		
-		while pit <= 5 and (row[pit] == 2 or row[pit] == 3):
+		while pit >= 0 and (row[pit] == 2 or row[pit] == 3):
 			count_seeds += row[pit]
 			row[pit] = 0
-			pit += 1
+			pit -= 1
 			
 		if self.player_turn == IA:
 			self.score1 += count_seeds
@@ -178,125 +158,113 @@ class Board:
 
 	def game_over(self):
 		if self.score1 >= 25:
-			return True, "IA won!"
+			self.winner = "IA won!"
+			return True
 
 		elif self.score2 >= 25:
-			return True, "Player won!"
+			self.winner = "Player won!"
+			return True
 
 		elif self.score1 == 24 and self.score2 == 24:
-			return True, "Tied!"
+			self.winner = "Tie!"
+			return True
+
+		elif self.no_more_moves():
+			self.retrive_seeds()
+			self.winner = "No winner!"
+			return True
 
 		else:
 			return False
 
-class IA:
+	def no_more_moves(self):
+		if not self.possible_moves() and self.opponent_empty():
+			return True
 
-	def heuristic(self, board):
-		if board.player_turn == IA:
-			return board.score1 - board.score2
+		return False
 
-		else:
-			return board.score2 - board.score1
+	def retrive_seeds(self):
 
-	def maximizer(self,board,depth):
-		print("maxi")
-		if depth == 0 or board.game_over():
-			return self.heuristic(board)
+		for seeds1 in self.row1:
+			self.score1 += seeds1
+			self.row1 = [0,0,0,0,0,0]
 
-		value = -999
-		
+		for seeds2 in self.row2:
+			self.score2 += seeds2
+			self.row2 = [0,0,0,0,0,0]
 
-		for move in board.possible_moves():
-			board_copy = copy.deepcopy(board)
-			board_copy.player_turn = IA
-			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.maximizer(board_copy, depth-1)
-			else:
-				val = self.minimizer(board_copy,depth-1) 
-				
-			if val > value:
-				value = val
-		return value
-
-	def minimizer(self, board,depth):
-		print("mini")
-		if depth == 0 or board.game_over():
-			return self.heuristic(board)
-
-		value = 999
-		
-		for move in board.possible_moves():
-			board_copy = copy.deepcopy(board)
-			board_copy.player_turn = PLAYER
-			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.minimizer(board_copy,depth-1)
-			else:
-				val = self.maximizer(board_copy,depth-1) 
-				
-			if val < value:
-				value = val
-		return value
-
-	def minimax(self, board, depth):
-		m = -1
-		value = -999
-
-		if depth == 0:
-			return self.heuristic(board)
-
-		if board.game_over():
-			return -1
-
-
-		for move in board.possible_moves():
-			board_copy = copy.deepcopy(board)
-			board_copy.player_turn = IA
-			board_copy.make_move(move)
-
-			if board_copy.opponent_empty():
-				val = self.maximizer(board_copy, depth-1)
-			else:
-				val = self.minimizer(board_copy,depth-1) 
-				
-			if val > value:
-				m = move
-				value = val
-			print("minimax value",val)
-
-
-		print("best move", m)
-		if m == -1:
-			m = move
-		return m
+	#def detect_cycle(self):
 
 
 
-
-
-
-#def menu():
-
-def play_game(board, ia):
+def menu():
+	print()
+def ia_vs_ia(board, ia, ia2):
 
 	while True:
+		board.display_board()
+
+		if board.game_over():
+			print(board.winner)
+			break
+
 		if board.player_turn == IA:
+			print("Minimax turn")
 
+			move = ia.minimax(board,7)
+			
+			if move == -1:
+				break;
+			
+			board.make_move(move) 
 
-			move = ia.minimax(board,3)
+			if board.opponent_empty():
+				board.player_turn = IA
+			else:
+				board.player_turn = IA_2
+
+		else:
+			print("Alphabeta turn")
+
+			move = ia2.alphaBeta(board,7)
 
 			if move == -1:
 				break;
-			print(move)
-			board.make_move(move) #??
+			
+			board.make_move(move) 
 
-			board.player_turn = PLAYER
+			if board.opponent_empty():
+				board.player_turn = IA_2
+			else:
+				board.player_turn = IA
+
+
+
+def player_vs_ia(board, ia):
+	
+	while True:
+		board.display_board()
+
+		if board.game_over():
+			print(board.winner)
+			break
+
+		if board.player_turn == IA:
+			print("IA turn")
+
+			move = ia.minimax(board,11)
+			
+			if move == -1:
+				break;
+			
+			board.make_move(move) 
+
+			if board.opponent_empty():
+				board.player_turn = IA
+			else:
+				board.player_turn = PLAYER
 			
 		else:
-			board.display_board()
 			moves = board.possible_moves()
 
 			if moves:
@@ -306,17 +274,19 @@ def play_game(board, ia):
 					pit = input("->Player move:")
 
 				board.make_move(int(pit)-1)
-				board.player_turn = IA
-
+		
 			if board.opponent_empty():
 				board.player_turn = PLAYER
+			else:
+				board.player_turn = IA
 
 				
 
 
 if __name__=='__main__':
 	board = Board()
-	ia = IA()
+	ia = Ia()
+	ia2 = Ia()
 	
-
-	play_game(board, ia)
+	#player_vs_ia(board, ia)
+	ia_vs_ia(board, ia, ia2)

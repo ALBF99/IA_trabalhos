@@ -1,40 +1,157 @@
 import copy
 from OuriBoard import *
 
-class IA:
-	def __init__(self, depth=4):
-		self.depth = depth
+class Ia:
 
-	def minimax(self, board, maximizer=False):
-		if depth == 0 or board.gameOver():
-			return
-
-		if maximizer:
-			value = -999999
-			board_copy = copy.deepcopy(board)
-
-			for move in board_copy.possible_moves():
-				board_copy.make_move(move)
-
-				val = self.minimax(board_copy,depth-1, not maximizer) 
-
-				if val > value:
-					value = val
-			return value
+	def heuristic(self, board):
+		if board.player_turn == IA:
+			return board.score1 - board.score2
 
 		else:
-			value = 999
-			board_copy = copy.deepcopy(board)
+			return board.score2 - board.score1
 
-			for move in board_copy.possible_moves():
+	def maximizer(self,board,depth):
+		if depth == 0 or board.game_over():
+			return self.heuristic(board)
 
-				board_copy.make_move(move)
+		value = -999
+		
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board) # new child node
+			board_copy.player_turn = IA
+			board_copy.make_move(move)
 
-				val = self.minimax(board_copy,depth-1, not maximizer) 
+			if board_copy.opponent_empty():
+				val = self.maximizer(board_copy, depth-1)
+			else:
+				val = self.minimizer(board_copy,depth-1) 
+				
+			if val > value:
+				value = val
+		return value
 
-				if val < value:
-					value = val
+	def minimizer(self, board,depth):
+		if depth == 0 or board.game_over():
+			return self.heuristic(board)
 
-			return value
+		value = 999
+		
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board) # new child node
+			board_copy.player_turn = PLAYER
+			board_copy.make_move(move)
 
+			if board_copy.opponent_empty():
+				val = self.minimizer(board_copy,depth-1)
+			else:
+				val = self.maximizer(board_copy,depth-1) 
+				
+			if val < value:
+				value = val
+		return value
 
+	def minimax(self, board, depth):
+		m = -1
+		value = -999
+
+		if depth == 0:
+			return self.heuristic(board)
+
+		if board.game_over():
+			return -1
+
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board) # new child node
+			board_copy.player_turn = IA
+			board_copy.make_move(move)
+
+			if board_copy.opponent_empty():
+				val = self.maximizer(board_copy, depth-1)
+			else:
+				val = self.minimizer(board_copy,depth-1) 
+				
+			if val > value:
+				m = move
+				value = val
+
+		return m
+
+	def maximizerAB(self,board,depth, alpha, beta):
+		if depth == 0 or board.game_over():
+			return self.heuristic(board)
+
+		value = -999
+		
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board) # new child node
+			board_copy.player_turn = IA_2
+			board_copy.make_move(move)
+
+			if board_copy.opponent_empty():
+				val = self.maximizerAB(board_copy, depth-1, alpha, beta)
+			else:
+				val = self.minimizerAB(board_copy,depth-1, alpha, beta) 
+
+			value = max(value, val)
+			#print(value)
+			if value >= beta:
+				return value
+
+			alpha = max(alpha, value)
+			
+		return value
+
+	def minimizerAB(self, board,depth, alpha, beta):
+		if depth == 0 or board.game_over():
+			return self.heuristic(board)
+
+		value = 999
+		
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board) # new child node
+			board_copy.player_turn = IA
+			board_copy.make_move(move)
+
+			if board_copy.opponent_empty():
+				val = self.minimizerAB(board_copy,depth-1, alpha, beta)
+			else:
+				val = self.maximizerAB(board_copy,depth-1, alpha, beta) 
+
+			value = min(value, val)
+		
+			if value <= alpha:
+				return value
+
+			beta = min(beta, value)
+		
+		return value
+
+	def alphaBeta(self,board,depth):
+		m = -1
+		value = -999
+		alpha = -999
+		beta = 999
+
+		if depth == 0:
+			return self.heuristic(board)
+
+		if board.game_over():
+			return -1
+
+		for move in board.possible_moves():
+			board_copy = copy.deepcopy(board) # new child node
+			board_copy.player_turn = IA_2
+			board_copy.make_move(move)
+
+			if board_copy.opponent_empty():
+				val = self.maximizerAB(board_copy, depth-1, alpha, beta)
+			else:
+				val = self.minimizerAB(board_copy,depth-1, alpha, beta) 
+
+			if val > value:
+				m = move
+				value = val
+
+			alpha = max(value, alpha)
+			
+		return m

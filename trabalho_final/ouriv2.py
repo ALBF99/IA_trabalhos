@@ -7,7 +7,7 @@ N_PITS = 12
 
 class Board:
 	def __init__(self, player):
-		self.board = [[4,4,4,4,4,4,4,4,4,4,4,4],[0,0]]
+		self.board = [[0,4,0,0,0,0,0,4,0,0,0,0],[0,0]]
 		self.player_turn = player
 		
 	#refazer função
@@ -153,7 +153,7 @@ class Computer:
 		board_copy = copy.deepcopy(board)
 		board_copy.reverse_lists()
 
-		for move in board_copy.possible_moves():
+		for move in board.possible_moves():
 			board_copy.make_move(move)
 
 			if board_copy.opponent_empty():
@@ -373,6 +373,6 @@ if __name__=='__main__':
         args = parser.parse_args()
 
         if args.p == True:
-        	play_game(COMPUTER)
+        	play_game(IA)
         else:
         	play_game(PLAYER)
