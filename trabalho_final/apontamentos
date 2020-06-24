@@ -139,7 +139,7 @@ def possible_moves(self):
 
 GO CHECK!!
 ->https://cs.pomona.edu/~dkauchak/classes/s13/cs311-s13/assignments/assign2.pdf
------->https://github.com/naigutstein/Mancala/blob/master/Player.py
+------>pricolhttps://github.com/naigutstein/Mancala/blob/master/Player.py
 ->https://github.com/suryaiyer/Intelligent-Agent/blob/master/src/Minimax.py#L10
 https://github.com/138paulmiller/Mancala-AI-Bot/blob/master/mancala.py
 https://github.com/cypreess/py-mancala/blob/master/mancala.py

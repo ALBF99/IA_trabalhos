@@ -1,10 +1,12 @@
 import copy
 from OuriBoard import *
+from Ouri import *
 
 class IA:
 	def __init__(self, depth):
 		self.depth = depth
 
+	#Heuristic function: Difference between scores
 	def heuristic(self, board):
 		if board.player_turn == board.player1:
 			return board.score1 - board.score2
@@ -12,8 +14,8 @@ class IA:
 		else:
 			return board.score2 - board.score1
 
+
 	def maximizer(self,board,depth, player):
-		#print(player, depth)
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -36,7 +38,6 @@ class IA:
 
 
 	def minimizer(self, board,depth, player):
-		#print(player, depth)
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -59,7 +60,6 @@ class IA:
 
 
 	def minimax(self, board, depth, player):
-		#print(player, depth)
 		best_move = -1
 		value = -999
 
@@ -103,6 +103,7 @@ class IA:
 			board_copy.player_turn = player
 			board_copy.make_move(move)
 
+			#if next player doesn't have seeds, the current player plays again
 			if board_copy.opponent_empty():
 				val = self.maximizerAB(board_copy, depth-1, alpha, beta, ALPHABETA)
 			else:
@@ -128,6 +129,7 @@ class IA:
 			board_copy.player_turn = player
 			board_copy.make_move(move)
 
+			#if next player doesn't have seeds, the current player plays again
 			if board_copy.opponent_empty():
 				val = self.minimizerAB(board_copy,depth-1, alpha, beta, player)
 			else:
@@ -150,20 +152,17 @@ class IA:
 
 		if depth == 0:
 			return self.heuristic(board)
-		#print("over",board.game_over())
+
 		if board.game_over():
-			#print("Foi aqui")
 			return -1
 
 		moves = board.possible_moves()
-		#print(moves)
 
 		for move in moves:
-			#print(move)
 			board_copy = copy.deepcopy(board) # new child node
 			board_copy.player_turn = player
 			board_copy.make_move(move)
-			#board_copy.display_board()
+			
 			#if next player doesn't have seeds, the current player plays again
 			if board_copy.opponent_empty():
 				val = self.maximizerAB(board_copy, depth-1, alpha, beta, ALPHABETA)

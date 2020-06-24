@@ -1,15 +1,69 @@
 RESULTADOS:
 ia vs ia:
 	5seg
+		1ºjogador: ALPHABETA (ganhou) 25
+		2º:MINIMAX 14
+
 		Ambas profundidades impares
 		-> ALPHABETA ganhou (1ºa jogar)
 
+
 	15seg
-		ALPHABETA: par (1º a jogar)
-		MINIMAX: impar
-		->MINIMAX ganhou
+		1ºjogador: ALPHABETA (ganhou) 
+		2º:MINIMAX 
+
+		Ambas profundidades impares
 
 	30seg
 		ALPHABETA: impar (1º a jogar)
 		MINIMAX: par
-		->ALPHABETA ganhou
+		
+		1ºjogador: ALPHABETA (ganhou) 
+		2º:MINIMAX 
+
+
+	1º jogo
+
+			Tempo: 5segundos
+			1ºJogador: Alfa-Beta
+			2ºJogador: Minimax
+			Vencedor: Alfa-Beta (25-14)
+
+	2º jogo
+
+			Tempo: 5segundos
+			1ºJogador: Minimax
+			2ºJogador: Alfa-Beta
+			Vencedor: Minimax (27-21)
+
+	3º jogo
+
+			Tempo: 15segundos
+			1ºJogador: Alfa-Beta
+			2ºJogador: Minimax
+			Vencedor: Minimax (13-27)
+
+	4º jogo
+
+			Tempo: 15segundos
+			1ºJogador: Minimax
+			2ºJogador: Alfa-Beta
+			Vencedor: Alfa-Beta (13-27)
+
+	5º jogo
+
+			Tempo: 30segundos
+			1ºJogador: Alfa-Beta
+			2ºJogador: Minimax
+			Vencedor: Alfa-Beta (31-8)
+
+	6º jogo
+
+			Tempo: 30segundos
+			1ºJogador: Minimax
+			2ºJogador: Alfa-Beta
+			Vencedor: Alfa-Beta (6-25)
+
+
+
+
