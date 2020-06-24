@@ -3,28 +3,23 @@ import time
 import argparse
 from OuriIA import *
 
-#players
+IA = 1
+PLAYER = 2
+IA_2 = 2
 MINIMAX = "Minimax"
 ALPHABETA = "Alphabeta"
-PLAYER = "Player"
+PLAYER_ = "Player"
 
-#levels of analysis and correspondent search depth
-MINIMAX_5 = 7
-MINIMAX_15 = 9
-MINIMAX_30 = 10
-ALPHABETA_5 = 13
-ALPHABETA_15 = 14
-ALPHABETA_30 = 15
 
 class Board:
-	def __init__(self, player1, player2, player_turn, winner=None):
+	def __init__(self, player_turn=2, winner=None):
 		self.row1 = [4,4,4,4,4,4]
 		self.row2 = [4,4,4,4,4,4]
 		self.score1 = 0
 		self.score2 = 0
-		self.player1 = player1
-		self.player2 = player2
-		self.player_turn = player_turn 
+		#self.player1 = player1
+		#self.player2 = player2
+		self.player_turn = player_turn #1- ia; 2-human or ia 
 		self.winner = winner
 
 	def display_board(self):
@@ -72,15 +67,10 @@ class Board:
 			else:
 				print("   "+str(score)+"   |")
 
-	def get_opponent(self, player):
-		if self.player1 == player:
-			return self.player2
-
-		return self.player1
 
 	#check if the opponent don't have seeds to move
 	def opponent_empty(self):
-		if self.player_turn == self.player1:
+		if self.player_turn == IA:
 			return sum(self.row2) == 0
 		else:
 			return sum(self.row1) == 0
@@ -91,7 +81,7 @@ class Board:
 		#if pit is between 0 and 5
 		#you can only choose a pit with one seed, if you don't have any other pit with more
 
-		if self.player_turn == self.player1:
+		if self.player_turn == IA:
 			row = self.row1
 		else:
 			row = self.row2
@@ -124,23 +114,23 @@ class Board:
 
 	def switch_rows(self, row, opponent_row):
 		if row == self.row1:
-			side = self.player2
+			side = PLAYER
 		else:
-			side = self.player1
+			side = IA
 
 		return opponent_row, row, side
 
 
 	#Move seeds across the board
 	def make_move(self, pit):
-		if self.player_turn == self.player1:
+		if self.player_turn == IA:
 			row = self.row1
 			opponent_row = self.row2
-			side = self.player1
+			side = IA
 		else:
 			row = self.row2
 			opponent_row = self.row1
-			side = self.player2
+			side = PLAYER
 
 		seeds = row[pit]
 		row[pit] = 0
@@ -165,6 +155,7 @@ class Board:
 			self.capture(pit-1, row)
 
 
+
 	def capture(self, pit, row):
 		count_seeds = 0
 		
@@ -173,23 +164,22 @@ class Board:
 			row[pit] = 0
 			pit -= 1
 			
-		if self.player_turn == self.player1:
+		if self.player_turn == IA:
 			self.score1 += count_seeds
 		else:
 			self.score2 += count_seeds
 
 
-	#check if the game ended
 	def game_over(self):
 		if self.no_more_moves():
 			self.collect_seeds()
 
 		if self.score1 >= 25:
-			self.winner = self.player1 + " won!"
+			self.winner = "IA won!"
 			return True
 
 		elif self.score2 >= 25:
-			self.winner = self.player2 + " won!"
+			self.winner = "Player won!"
 			return True
 
 		elif self.score1 == 24 and self.score2 == 24:
@@ -199,19 +189,18 @@ class Board:
 		else:
 			return False
 
-	#the game is near the end when
-	#Case 1: we can't put seeds in the opponent side (that is empty)
-	#Case 2: we detect a cycle
+
 	def no_more_moves(self):
+
 		if not self.possible_moves() and self.opponent_empty():
 			return True
 
 		if self.detect_cycle():
+			print("detetou")
 			return True
 
 		return False
 
-	#Case 1
 	def collect_seeds(self):
 
 		for seeds1 in self.row1:
@@ -222,7 +211,6 @@ class Board:
 			self.score2 += seeds2
 			self.row2 = [0,0,0,0,0,0]
 
-	#Case 2
 	def detect_cycle(self):
 		if sum(self.row1) == 1 and sum(self.row2) == 1 and self.row1 == self.row2:
 			return True
@@ -231,119 +219,68 @@ class Board:
 
 
 
-def match_level(algorithm, level):
-	if algorithm == MINIMAX:
-		if level == 1:
-			return MINIMAX_5
-		elif level == 2:
-			return MINIMAX_15
-		else:
-			return MINIMAX_30
-	else:
-		if level == 1:
-			return ALPHABETA_5
-		elif level == 2:
-			return ALPHABETA_15
-		else:
-			return ALPHABETA_30
+			 
 
-def switch_turns(board):
-	board.player_turn = board.get_opponent(board.player_turn)
-		
 
-def menu(t):
+
+def menu(first_player):
 	print("\n		     WELCOME TO OURI GAME\n\n")
 
-
-	print("Choose a GAME MODE:")
+	
 	print(" 1- player vs ia")
 	print(" 2- ia vs ia")
 
-	mode = input("Option:")
+	choice = input()
 
-	if mode == str(1):
-		print("\nChoose the ALGORITHM you want to play against:")
-		print(" 1- Minimax")
-		print(" 2- Alphabeta")
-
-		algo = input("Option:")
-
-		if algo == str(1):
-			algo = MINIMAX
-		else:
-			algo = ALPHABETA
-
-	print("\nChoose the LEVEL OF ANALYSIS of the algorithm:")
-	print(" 1- 5 seconds")
-	print(" 2- 15 seconds")
-	print(" 3- 30 seconds")
-
-	level = input("Option:")
-
-	if mode == str(1):
-		player_vs_ia(t, algo, int(level))
+	if choice == str(1):
+		player_vs_ia(first_player)
 	else:
-		ia_vs_ia(t, int(level))
+		ia_vs_ia(first_player)
 
-
-def ia_vs_ia(t, level):
-	if t == 1:
-		board = Board(MINIMAX, ALPHABETA, MINIMAX)
-	else:
-		board = Board(MINIMAX, ALPHABETA, ALPHABETA)
-
-
-	ia = IA(match_level(MINIMAX, level)) #minimax
-	ia2 = IA(match_level(ALPHABETA, level)) #alphabeta
+def ia_vs_ia(first_player):
+	board = Board(first_player)
+	ia = Ia()
+	ia2 = Ia()
 
 	while True:
 		board.display_board()
 
 		if board.game_over():
-			print("\n-------------------------------END-------------------------------")
 			board.display_board()
 			print(board.winner)
 			break
 
-		if board.player_turn == MINIMAX:
+		if board.player_turn == IA:
 			print("Minimax turn")
 
-			start_time = time.time()
-			move = ia.minimax(board, ia.depth, MINIMAX)
-			print("--- %s seconds ---" % round(time.time() - start_time))
-
+			move = ia.minimax(board,7)
+			
 			if move != -1:
-				print("Best move: ", 6-move, "\n")
-				board.make_move(move)
+				board.make_move(move) 
 
-				if not board.opponent_empty():
-					switch_turns(board)
+				if board.opponent_empty():
+
+					board.player_turn = IA
+				else:
+					board.player_turn = IA_2
 
 		else:
 			print("Alphabeta turn")
 
-			start_time = time.time()
-			move = ia2.alphaBeta(board, ia2.depth, ALPHABETA)
-			print("--- %s seconds ---" % round(time.time() - start_time))
+			move = ia2.alphaBeta(board,11)
 
 			if move != -1:
-				print("Best move: ", 6-move, "\n")
 				board.make_move(move)
 
-				if not board.opponent_empty():
-					switch_turns(board)
+				if board.opponent_empty():
+					board.player_turn = IA_2
+				else:
+					board.player_turn = IA
 
 
-def player_vs_ia(t, algo, level):
-	if t == 1:
-		board = Board(algo, PLAYER, algo)
-	else:
-		board = Board(algo, PLAYER, PLAYER)
-
-	#print(board.player_turn)
-	#print(algo)
-	#print(match_level(algo, level))
-	ia = IA(match_level(algo, level)) #minimax or alphabeta
+def player_vs_ia(first_player):
+	board = Board(first_player)
+	ia = Ia()
 
 	while True:
 		board.display_board()
@@ -355,7 +292,25 @@ def player_vs_ia(t, algo, level):
 			break
 
 
-		if board.player_turn == PLAYER:
+		if board.player_turn == IA:
+			
+			print("Computer turn...")
+
+			start_time = time.time()
+			move = ia.minimax(board,7)
+			print("--- %s seconds ---" % round(time.time() - start_time))
+			
+			if move != -1:
+				print("Best move: ", 6-move)
+				board.make_move(move)
+
+				if board.opponent_empty():
+					board.player_turn = IA
+				else:
+					board.player_turn = PLAYER
+
+			
+		else:
 			moves = board.possible_moves()
 
 			if moves:
@@ -368,29 +323,13 @@ def player_vs_ia(t, algo, level):
 
 				board.make_move(int(pit)-1)
 			
-			if not board.opponent_empty():
-				switch_turns(board)
-
-		else:
-
-			print("Computer turn...")
-			start_time = time.time()
-
-			if board.player_turn == MINIMAX:
-				move = ia.minimax(board, ia.depth, MINIMAX)
-
-			if board.player_turn == ALPHABETA:
-				move = ia.alphaBeta(board, ia.depth, ALPHABETA)
-
-			print("--- %s seconds ---" % round(time.time() - start_time))
 			
-			if move != -1:
-				print("Best move: ", 6-move, "\n")
-				board.make_move(move)
+			if board.opponent_empty():
+				board.player_turn = PLAYER
+			else:
+				board.player_turn = IA
 
-				if not board.opponent_empty():
-					switch_turns(board)
-					
+
 
 
 if __name__=='__main__':
@@ -400,6 +339,6 @@ if __name__=='__main__':
 	args = parser.parse_args()
 
 	if args.p == True:
-		menu(1)
+		menu(IA)
 	else:
-		menu(2)
+		menu(PLAYER)

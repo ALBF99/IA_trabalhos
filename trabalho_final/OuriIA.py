@@ -1,16 +1,19 @@
 import copy
 from OuriBoard import *
 
-class Ia:
+class IA:
+	def __init__(self, depth):
+		self.depth = depth
 
 	def heuristic(self, board):
-		if board.player_turn == IA:
+		if board.player_turn == board.player1:
 			return board.score1 - board.score2
 
 		else:
 			return board.score2 - board.score1
 
-	def maximizer(self,board,depth):
+	def maximizer(self,board,depth, player):
+		#print(player, depth)
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -18,19 +21,22 @@ class Ia:
 		
 		for move in board.possible_moves():
 			board_copy = copy.deepcopy(board) # new child node
-			board_copy.player_turn = IA
+			board_copy.player_turn = player
 			board_copy.make_move(move)
 
+			#if next player doesn't have seeds, the current player plays again
 			if board_copy.opponent_empty():
-				val = self.maximizer(board_copy, depth-1)
+				val = self.maximizer(board_copy, depth-1, MINIMAX)
 			else:
-				val = self.minimizer(board_copy,depth-1) 
-				
-			if val > value:
-				value = val
+				val = self.minimizer(board_copy,depth-1, board_copy.get_opponent(MINIMAX)) 
+			
+			value = max(val,value)
+
 		return value
 
-	def minimizer(self, board,depth):
+
+	def minimizer(self, board,depth, player):
+		#print(player, depth)
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -38,20 +44,23 @@ class Ia:
 		
 		for move in board.possible_moves():
 			board_copy = copy.deepcopy(board) # new child node
-			board_copy.player_turn = PLAYER
+			board_copy.player_turn = player
 			board_copy.make_move(move)
 
+			#if next player doesn't have seeds, the current player plays again
 			if board_copy.opponent_empty():
-				val = self.minimizer(board_copy,depth-1)
+				val = self.minimizer(board_copy,depth-1, player)
 			else:
-				val = self.maximizer(board_copy,depth-1) 
-				
-			if val < value:
-				value = val
+				val = self.maximizer(board_copy,depth-1, MINIMAX) 
+			
+			value = min(val,value)
+
 		return value
 
-	def minimax(self, board, depth):
-		m = -1
+
+	def minimax(self, board, depth, player):
+		#print(player, depth)
+		best_move = -1
 		value = -999
 
 		if depth == 0:
@@ -64,24 +73,26 @@ class Ia:
 
 		for move in moves:
 			board_copy = copy.deepcopy(board) # new child node
-			board_copy.player_turn = IA
+			board_copy.player_turn = player
 			board_copy.make_move(move)
 
+			#if next player doesn't have seeds, the current player plays again
 			if board_copy.opponent_empty():
-				val = self.maximizer(board_copy, depth-1)
+				val = self.maximizer(board_copy, depth-1, MINIMAX)
 			else:
-				val = self.minimizer(board_copy,depth-1) 
+				val = self.minimizer(board_copy,depth-1, board_copy.get_opponent(MINIMAX)) 
 				
 			if val > value:
-				m = move
+				best_move = move
 				value = val
 
 		if len(moves) == 1:
 			return move
 
-		return m
+		return best_move
 
-	def maximizerAB(self,board,depth, alpha, beta):
+
+	def maximizerAB(self,board,depth, alpha, beta, player):
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -89,16 +100,16 @@ class Ia:
 		
 		for move in board.possible_moves():
 			board_copy = copy.deepcopy(board) # new child node
-			board_copy.player_turn = IA_2
+			board_copy.player_turn = player
 			board_copy.make_move(move)
 
 			if board_copy.opponent_empty():
-				val = self.maximizerAB(board_copy, depth-1, alpha, beta)
+				val = self.maximizerAB(board_copy, depth-1, alpha, beta, ALPHABETA)
 			else:
-				val = self.minimizerAB(board_copy,depth-1, alpha, beta) 
+				val = self.minimizerAB(board_copy,depth-1, alpha, beta, board_copy.get_opponent(ALPHABETA)) 
 
 			value = max(value, val)
-			#print(value)
+			
 			if value >= beta:
 				return value
 
@@ -106,7 +117,7 @@ class Ia:
 			
 		return value
 
-	def minimizerAB(self, board,depth, alpha, beta):
+	def minimizerAB(self, board,depth, alpha, beta, player):
 		if depth == 0 or board.game_over():
 			return self.heuristic(board)
 
@@ -114,16 +125,16 @@ class Ia:
 		
 		for move in board.possible_moves():
 			board_copy = copy.deepcopy(board) # new child node
-			board_copy.player_turn = IA
+			board_copy.player_turn = player
 			board_copy.make_move(move)
 
 			if board_copy.opponent_empty():
-				val = self.minimizerAB(board_copy,depth-1, alpha, beta)
+				val = self.minimizerAB(board_copy,depth-1, alpha, beta, player)
 			else:
-				val = self.maximizerAB(board_copy,depth-1, alpha, beta) 
+				val = self.maximizerAB(board_copy,depth-1, alpha, beta, ALPHABETA) 
 
 			value = min(value, val)
-		
+			
 			if value <= alpha:
 				return value
 
@@ -131,38 +142,41 @@ class Ia:
 		
 		return value
 
-	def alphaBeta(self,board,depth):
-		m = -1
+	def alphaBeta(self,board,depth, player):
+		best_move = -1
 		value = -999
 		alpha = -999
 		beta = 999
 
 		if depth == 0:
 			return self.heuristic(board)
-
+		#print("over",board.game_over())
 		if board.game_over():
+			#print("Foi aqui")
 			return -1
 
 		moves = board.possible_moves()
+		#print(moves)
 
 		for move in moves:
+			#print(move)
 			board_copy = copy.deepcopy(board) # new child node
-			board_copy.player_turn = IA_2
+			board_copy.player_turn = player
 			board_copy.make_move(move)
-
+			#board_copy.display_board()
+			#if next player doesn't have seeds, the current player plays again
 			if board_copy.opponent_empty():
-				val = self.maximizerAB(board_copy, depth-1, alpha, beta)
+				val = self.maximizerAB(board_copy, depth-1, alpha, beta, ALPHABETA)
 			else:
-				val = self.minimizerAB(board_copy,depth-1, alpha, beta) 
+				val = self.minimizerAB(board_copy,depth-1, alpha, beta, board_copy.get_opponent(ALPHABETA)) 
 
 			if val > value:
-				m = move
+				best_move = move
 				value = val
 
 			alpha = max(value, alpha)
 		
-
 		if len(moves) == 1:
 			return move
 
-		return m
+		return best_move

@@ -1,0 +1,15 @@
+RESULTADOS:
+ia vs ia:
+	5seg
+		Ambas profundidades impares
+		-> ALPHABETA ganhou (1ºa jogar)
+
+	15seg
+		ALPHABETA: par (1º a jogar)
+		MINIMAX: impar
+		->MINIMAX ganhou
+
+	30seg
+		ALPHABETA: impar (1º a jogar)
+		MINIMAX: par
+		->ALPHABETA ganhou
